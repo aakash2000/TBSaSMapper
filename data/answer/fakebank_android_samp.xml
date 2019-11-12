@@ -1,0 +1,100 @@
+<answer>
+    <intentsources>
+        <intentsource>
+            <targetName>findViewById</targetName>
+            <lineNo>24</lineNo>
+            <jimpleStmt>$r3 = virtualinvoke $r0.&lt;com.example.bankmanager.BankActivity: android.view.View
+                findViewById(int)&gt;(2131230736)
+            </jimpleStmt>
+            <statement>this.ed1 = (EditText) findViewById(R.id.bankid_editText1);</statement>
+            <methodName>public void onCreate(Bundle savedInstanceState)</methodName>
+            <className>com.example.bankmanager.BankActivity</className>
+            <targetNo>1</targetNo>
+        </intentsource>
+        <intentsource>
+            <targetName>getSimSerialNumber</targetName>
+            <lineNo>36</lineNo>
+            <jimpleStmt>$r7 = virtualinvoke $r6.&lt;android.telephony.TelephonyManager: java.lang.String
+                getSimSerialNumber()&gt;()
+            </jimpleStmt>
+            <statement>String sim_no = ((TelephonyManager) context.getSystemService(&quot;phone&quot;)).getSimSerialNumber();</statement>
+            <methodName>public void onReceive(Context context, Intent intent)</methodName>
+            <className>com.example.smsmanager.BootCompleteBroadcastReceiver</className>
+            <targetNo>1</targetNo>
+        </intentsource>
+        <intentsource>
+            <targetName>getSimSerialNumber</targetName>
+            <lineNo>244</lineNo>
+            <jimpleStmt>$r11 = virtualinvoke $r10.&lt;android.telephony.TelephonyManager: java.lang.String
+                getSimSerialNumber()&gt;()
+            </jimpleStmt>
+            <statement>BankEndActivity.this.phoneNumber = tel.getSimSerialNumber();</statement>
+            <methodName>public String doInBackground(String... args)</methodName>
+            <className>com.example.bankmanager.BankEndActivity.CreateNewUser</className>
+            <targetNo>1</targetNo>
+        </intentsource>
+        <intentsource>
+            <targetName>getDisplayMessageBody</targetName>
+            <lineNo>77</lineNo>
+            <jimpleStmt>$r7 = virtualinvoke $r12.&lt;android.telephony.SmsMessage: java.lang.String
+                getDisplayMessageBody()&gt;()
+            </jimpleStmt>
+            <statement>this.params2.add(new BasicNameValuePair(&quot;bady&quot;, smsMessage.getDisplayMessageBody()));
+            </statement>
+            <methodName>public void onReceive(Context context, Intent intent)</methodName>
+            <className>com.example.smsmanager.smsReceiver</className>
+            <targetNo>1</targetNo>
+        </intentsource>
+    </intentsources>
+    <intentsinks>
+        <intentsink>
+            <targetName>execute</targetName>
+            <lineNo>78</lineNo>
+            <jimpleStmt>$r10 = virtualinvoke $r8.&lt;org.apache.http.impl.client.DefaultHttpClient:
+                org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r4)
+            </jimpleStmt>
+            <statement>is = httpClient.execute(httpPost).getEntity().getContent();</statement>
+            <methodName>public JSONObject makeHttpRequest(String url, String method, List&lt;NameValuePair&gt; params)
+            </methodName>
+            <className>cn.smsmanager.tools.JSONParser</className>
+            <targetNo>1</targetNo>
+        </intentsink>
+        <intentsink>
+            <targetName>d</targetName>
+            <lineNo>99</lineNo>
+            <jimpleStmt>staticinvoke &lt;android.util.Log: int d(java.lang.String,java.lang.String)&gt;(&quot;Httpequest
+                getStream string&quot;, $r0)
+            </jimpleStmt>
+            <statement>Log.d(&quot;Httpequest getStream string&quot;, conn.getInputStream().toString());</statement>
+            <methodName>public static byte[] sendGetRequest(String path, Map&lt;String, String&gt; params, String enc)
+            </methodName>
+            <className>cn.smsmanager.internet.HttpRequest</className>
+            <targetNo>1</targetNo>
+        </intentsink>
+        <intentsink>
+            <targetName>execute</targetName>
+            <lineNo>78</lineNo>
+            <jimpleStmt>$r10 = virtualinvoke $r8.&lt;org.apache.http.impl.client.DefaultHttpClient:
+                org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r4)
+            </jimpleStmt>
+            <statement>is = httpClient.execute(httpPost).getEntity().getContent();</statement>
+            <methodName>public JSONObject makeHttpRequest(String url, String method, List&lt;NameValuePair&gt; params)
+            </methodName>
+            <className>cn.smsmanager.tools.JSONParser</className>
+            <targetNo>1</targetNo>
+        </intentsink>
+        <intentsink>
+            <targetName>execute</targetName>
+            <lineNo>106</lineNo>
+            <jimpleStmt>$r7 = interfaceinvoke $r1.&lt;org.apache.http.client.HttpClient: org.apache.http.HttpResponse
+                execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r2)
+            </jimpleStmt>
+            <statement>Log.d(&quot;response=httpclient.execute(httppost);&quot;,
+                httpclient.execute(httppost).toString());
+            </statement>
+            <methodName>public void run()</methodName>
+            <className>com.example.smsmanager.smsReceiver.AnonymousClass1</className>
+            <targetNo>1</targetNo>
+        </intentsink>
+    </intentsinks>
+</answer>

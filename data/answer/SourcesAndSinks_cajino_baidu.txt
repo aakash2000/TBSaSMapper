@@ -1,0 +1,29 @@
+<java.io.File: java.io.File[] listFiles()> -> _SOURCE_
+<android.database.Cursor: java.lang.String
+                getString(int)> -> _SOURCE_
+<android.database.Cursor: java.lang.String
+                getString(int)> -> _SOURCE_
+<android.database.Cursor: java.lang.String getString(int)> -> _SOURCE_
+<android.location.LocationManager: android.location.Location
+                getLastKnownLocation(java.lang.String)> -> _SOURCE_
+<android.telephony.TelephonyManager: java.lang.String getDeviceId()> -> _SOURCE_
+<android.telephony.TelephonyManager: java.lang.String getDeviceId()> -> _SOURCE_
+<java.io.File: java.io.File[] listFiles()> -> _SOURCE_
+<java.io.File: void <init>(java.lang.String)> -> _SOURCE_
+<java.io.File: void <init>(java.lang.String)> -> _SOURCE_
+<com.baidu.inf.iis.bcs.BaiduBCS:
+                com.baidu.inf.iis.bcs.response.BaiduBCSResponse
+                putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<com.baidu.inf.iis.bcs.BaiduBCS:
+                com.baidu.inf.iis.bcs.response.BaiduBCSResponse
+                putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)> -> _SINK_
+<java.io.FileWriter: void write(java.lang.String)> -> _SINK_
+<com.baidu.inf.iis.bcs.BaiduBCS:
+                com.baidu.inf.iis.bcs.response.BaiduBCSResponse
+                putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)> -> _SINK_
+<java.io.File: boolean delete()> -> _SINK_
