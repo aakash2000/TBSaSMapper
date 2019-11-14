@@ -7,7 +7,7 @@
       "methodName" : "public void onCreate(Bundle savedInstanceState)",
       "className" : "com.example.bankmanager.BankActivity",
       "lineNo" : 24,
-      "targetName" : "findViewById",
+      "targetName" : "fiintentsinksndViewById",
       "targetNo" : 1,
       "jimpleStmt" : "$r3 = virtualinvoke $r0.<com.example.bankmanager.BankActivity: android.view.View findViewById(int)>(2131230736)"
     },
