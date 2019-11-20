@@ -2,7 +2,7 @@
 <answer>
     <sources>
         <source>
-            <reference type="fiintentsinksndViewById">
+            <reference>
                 <statement>
                     <statementfull>$r3 = virtualinvoke $r0.&lt;com.example.bankmanager.BankActivity: android.view.View findViewById(int)&gt;(2131230736)</statementfull>
                     <statementgeneric>com.example.bankmanager.BankActivity: android.view.View findViewById(int)</statementgeneric>
@@ -27,7 +27,7 @@
             </reference>
         </source>
         <source>
-            <reference type="getSimSerialNumber">
+            <reference>
                 <statement>
                     <statementfull>$r7 = virtualinvoke $r6.&lt;android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()&gt;()</statementfull>
                     <statementgeneric>android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()</statementgeneric>
@@ -46,7 +46,7 @@
             </reference>
         </source>
         <source>
-            <reference type="getSimSerialNumber">
+            <reference>
                 <statement>
                     <statementfull>$r11 = virtualinvoke $r10.&lt;android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()&gt;()</statementfull>
                     <statementgeneric>android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()</statementgeneric>
@@ -65,7 +65,7 @@
             </reference>
         </source>
         <source>
-            <reference type="getDisplayMessageBody">
+            <reference>
                 <statement>
                     <statementfull>$r7 = virtualinvoke $r12.&lt;android.telephony.SmsMessage: java.lang.String getDisplayMessageBody()&gt;()</statementfull>
                     <statementgeneric>android.telephony.SmsMessage: java.lang.String getDisplayMessageBody()</statementgeneric>
@@ -86,7 +86,7 @@
     </sources>
     <sinks>
         <sink>
-            <reference type="execute">
+            <reference>
                 <statement>
                     <statementfull>$r10 = virtualinvoke $r8.&lt;org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r4)</statementfull>
                     <statementgeneric>org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)</statementgeneric>
@@ -111,7 +111,7 @@
             </reference>
         </sink>
         <sink>
-            <reference type="d">
+            <reference>
                 <statement>
                     <statementfull>staticinvoke &lt;android.util.Log: int d(java.lang.String,java.lang.String)&gt;("Httpequest getStream string", $r0)</statementfull>
                     <statementgeneric>android.util.Log: int d(java.lang.String,java.lang.String)</statementgeneric>
@@ -140,7 +140,7 @@
             </reference>
         </sink>
         <sink>
-            <reference type="execute">
+            <reference>
                 <statement>
                     <statementfull>$r10 = virtualinvoke $r8.&lt;org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r4)</statementfull>
                     <statementgeneric>org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)</statementgeneric>
@@ -165,7 +165,7 @@
             </reference>
         </sink>
         <sink>
-            <reference type="execute">
+            <reference>
                 <statement>
                     <statementfull>$r7 = interfaceinvoke $r1.&lt;org.apache.http.client.HttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)&gt;($r2)</statementfull>
                     <statementgeneric>org.apache.http.client.HttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)</statementgeneric>

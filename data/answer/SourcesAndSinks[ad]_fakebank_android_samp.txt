@@ -2,4 +2,6 @@ Landroid/telephony/SmsMessage;.getDisplayMessageBody:()Ljava/lang/String; SENSIT
 Landroid/telephony/TelephonyManager;.getSimSerialNumber:()Ljava/lang/String; SENSITIVE_INFO -> _SOURCE_
 Lcom/example/bankmanager/BankActivity;.findViewById:(I)Landroid/view/View; SENSITIVE_INFO -> _SOURCE_
 
+Landroid/util/Log;.d:(Ljava/lang/String;Ljava/lang/String;)I -> _SINK_ 0|1
+Lorg/apache/http/client/HttpClient;.execute:(Lorg/apache/http/client/methods/HttpUriRequest;)Lorg/apache/http/HttpResponse; -> _SINK_ 0
 Lorg/apache/http/impl/client/DefaultHttpClient;.execute:(Lorg/apache/http/client/methods/HttpUriRequest;)Lorg/apache/http/HttpResponse; -> _SINK_ 0

@@ -3,15 +3,15 @@ package de.foellix.aql.taintbench.sasmapper;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.foellix.aql.datastructure.*;
+import de.foellix.aql.datastructure.Sink;
+import de.foellix.aql.datastructure.Source;
 import de.foellix.aql.datastructure.handler.AnswerHandler;
 import de.foellix.aql.helper.Helper;
 import de.foellix.aql.helper.JawaHelper;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
+import de.foellix.aql.ggwiz.taintbench.datastructure.*;
 
 public class Mapper {
 	private static final String pathJson = "data/json/";
@@ -40,17 +40,7 @@ public class Mapper {
 	}
 
     private static void exportAQLAnswer(String app) {
-        // TODO: Use the AQL-System project classes here as well:
         final Answer aqlAnswer = new Answer();
-        // And then continue like this: aqlAnswer.setSources(...);
-        // Also consider using: Helper.createApp(...) and Helper.createStatement(...) etc.
-        // To write the actual XML file, please use AnswerHandler: AnswerHandler.createXML(aqlAnswer, xmlFile);
-
-        // FIXME: Additionally Sources and Sinks have to be represented in AQL-Format: https://github.com/FoelliX/AQL-System/wiki/Answers
-        // However, this should become clear once you use the actual AQL-System classes
-        // FIXME: Use Sources and Sinks instead of IntentSource and IntentSinks
-        // Therefore you have to use the up-to-date version of the AQL project from gitlab (develop branch)
-
         appName = app.substring(0, app.indexOf(".apk"));
         answerFile = answerFile + appName + ".xml";
         final String findings = app.trim().replace(".apk", "").concat("_findings.json");
@@ -58,48 +48,45 @@ public class Mapper {
         Sources sources = new Sources();
         Sinks sinks = new Sinks();
         try {
-            final FileReader findingsJson = new FileReader(pathJson.concat(findings));
-            final JSONTokener token = new JSONTokener(findingsJson);
-            final JSONObject obj = new JSONObject(token);
-            if (obj.get("findings").toString() == null || obj.get("findings").toString().equals("")) {
+            final File jsonfile = new File(pathJson.concat(findings));
+            final ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            final TaintBenchCase taintBenchCase = mapper.readValue(jsonfile,TaintBenchCase.class);
+
+            if (taintBenchCase.getFindings().isEmpty() || taintBenchCase.getFindings().size() < 1) {
                 System.out.println("No findings found!");
             } else {
-                final JSONArray allFindings = (JSONArray) obj.get("findings");
-                for (int i = 0; i < allFindings.length(); i++) {
-                    final JSONObject object = (JSONObject) allFindings.get(i);
-                    if (object.get("sink").toString() == null || object.get("sink").toString().equals("")) {
+                final List<Finding> findingsList = taintBenchCase.getFindings();
+                for (int i = 0; i < findingsList.size(); i++) {
+                    Finding finding = findingsList.get(i);
+                    if (finding.getSink() == null) {
                         System.out.println("No Intent Sink found");
                     } else {
-
                         Sink sink = new Sink();
                         Reference reference = new Reference();
                         Statement statement = new Statement();
                         reference.setApp(appObj);
-                        if (((JSONObject) object.get("sink")).get("className") != null){
+                        if (!finding.getSink().getClassName().isEmpty() && finding.getSink().getClassName() != null){
                             //Extracting ClassName
-                            reference.setClassname(((JSONObject) object.get("sink")).get("className").toString());
+                            reference.setClassname(finding.getSink().getClassName());
                         }
-                        if (((JSONObject) object.get("sink")).get("jimpleStmt") != null && ((JSONObject) object.get("sink")).get("lineNo") != null){
+                        if (!finding.getSink().getJimpleStmt().isEmpty() && finding.getSink().getJimpleStmt() != null && finding.getSink().getLineNo() != null){
                             //Extracting JimpleStmt and lineNo
-                            statement = Helper.createStatement(((JSONObject) object.get("sink")).get("jimpleStmt").toString(),Integer.parseInt(((JSONObject) object.get("sink")).get("lineNo").toString()));
-                        }else if (((JSONObject) object.get("sink")).get("jimpleStmt") != null){
+                            statement = Helper.createStatement(finding.getSink().getJimpleStmt(),finding.getSink().getLineNo());
+                        }else if (!finding.getSink().getJimpleStmt().isEmpty() && finding.getSink().getJimpleStmt() != null){
                             //Extracting JimpleStmt
-                            statement = Helper.createStatement(((JSONObject) object.get("sink")).get("jimpleStmt").toString());
+                            statement = Helper.createStatement(finding.getSink().getJimpleStmt());
                         }
-                        if (((JSONObject) object.get("sink")).get("methodName") != null){
+                        if (finding.getSink().getMethodName() != null && !finding.getSink().getMethodName().isEmpty()){
                             //Extracting methodName
-                            reference.setMethod(((JSONObject) object.get("sink")).get("methodName").toString());
-                        }
-                        if (((JSONObject) object.get("sink")).get("targetName") != null){
-                            //Extracting targetName
-                            reference.setType(((JSONObject) object.get("sink")).get("targetName").toString());
+                            reference.setMethod(finding.getSink().getMethodName());
                         }
                         reference.setStatement(statement);
                         sink.getReference().add(reference);
                         sinks.getSink().add(sink);
 
                     }
-                    if (object.get("source").toString() == null || object.get("source").toString().equals("")) {
+                    if (finding.getSource() == null) {
                         System.out.println("No Intent Source found");
                     } else {
 
@@ -107,24 +94,20 @@ public class Mapper {
                         Reference reference = new Reference();
                         Statement statement = new Statement();
                         reference.setApp(appObj);
-                        if (((JSONObject) object.get("source")).get("className") != null){
+                        if (finding.getSource().getClassName() != null && !finding.getSource().getClassName().isEmpty()){
                             //Extracting ClassName
-                            reference.setClassname(((JSONObject) object.get("source")).get("className").toString());
+                            reference.setClassname(finding.getSource().getClassName());
                         }
-                        if (((JSONObject) object.get("source")).get("jimpleStmt") != null && ((JSONObject) object.get("source")).get("lineNo") != null){
+                        if (!finding.getSource().getJimpleStmt().isEmpty() && finding.getSource().getJimpleStmt() != null && finding.getSource().getLineNo() != null){
                             //Extracting JimpleStmt and lineNo
-                            statement = Helper.createStatement(((JSONObject) object.get("source")).get("jimpleStmt").toString(),Integer.parseInt(((JSONObject) object.get("source")).get("lineNo").toString()));
-                        }else if (((JSONObject) object.get("source")).get("jimpleStmt") != null){
+                            statement = Helper.createStatement(finding.getSource().getJimpleStmt(),finding.getSource().getLineNo());
+                        }else if (!finding.getSource().getJimpleStmt().isEmpty() && finding.getSource().getJimpleStmt() != null){
                             //Extracting JimpleStmt
-                            statement = Helper.createStatement(((JSONObject) object.get("source")).get("jimpleStmt").toString());
+                            statement = Helper.createStatement(finding.getSource().getJimpleStmt());
                         }
-                        if (((JSONObject) object.get("source")).get("methodName") != null){
+                        if (finding.getSource().getMethodName() != null && !finding.getSource().getMethodName().isEmpty()){
                             //Extracting methodName
-                            reference.setMethod(((JSONObject) object.get("source")).get("methodName").toString());
-                        }
-                        if (((JSONObject) object.get("source")).get("targetName") != null){
-                            //Extracting targetName
-                            reference.setType(((JSONObject) object.get("source")).get("targetName").toString());
+                            reference.setMethod(finding.getSource().getMethodName());
                         }
                         reference.setStatement(statement);
                         source.getReference().add(reference);
@@ -136,12 +119,10 @@ public class Mapper {
                 File file = new File(answerFile);
                 AnswerHandler.createXML(aqlAnswer,file);
             }
-        } catch (final JSONException e) {
-            e.printStackTrace();
         } catch (final Exception e) {
             e.printStackTrace();
         }
-    }
+	}
 
 	private static void exportSourceAndSinks(String[] args) {
 		appName = args[2].substring(0, args[2].indexOf(".xml"));
@@ -152,13 +133,7 @@ public class Mapper {
 				return;
 			}
 			final File answerXml = new File(pathXML + appName + ".xml");
-
-			// TODO: Instead of Dom please use the AQL Parser (from AQL-System project - see next line)
 			final Answer aqlAnswer = AnswerHandler.parseXML(answerXml);
-			// TODO: Do the same as you did but with aqlAnswer
-
-			// FIXME: The output contain unwanted linebreaks etc.
-			// Try to adapt to the implementation in the BREW project (https://git.cs.upb.de/fpauck/BREW -> de.foellix.aql.ggwiz.Exporter -> exportSourcesAndSinks -- Jawa is the intermediate representation (IR) language of Amandroid and Jimple is the IR of FlowDroid)
             if (aqlAnswer == null){
                 System.out.println("Invalid AQL Answer");
                 return;
@@ -187,7 +162,7 @@ public class Mapper {
 				sourcesAndSinksToExport.add("<"+ref.getStatement().getStatementgeneric()+"> -> "+ sinkString);
 			}
 		}
-		exportToFile(sourcesAndSinksToExport, flowDroid);
+		exportToFile(sourcesAndSinksToExport);
 
 	}
 
@@ -199,30 +174,31 @@ public class Mapper {
 						+ sourceString);
 			}
 		}
-		buildSinkJawa(aqlAnswer.getSinks(),sourcesAndSinksToExport);
+		buildSinkJawa(aqlAnswer,sourcesAndSinksToExport);
 	}
 
 
-    private static void buildSinkJawa(Sinks sinks, Set<String> sourcesAndSinksToExport){
-		final StringBuilder attachment = new StringBuilder();
-		final Set<String> sinksToExport = new HashSet<>();
+    private static void buildSinkJawa(Answer answer, Set<String> sourcesAndSinksToExport){
+		final Sinks sinks = answer.getSinks();
+		StringBuilder attachment;
 		for (Sink sink : sinks.getSink()) {
+			attachment = new StringBuilder();
 			for (Reference reference : sink.getReference()) {
 				if (reference.getStatement().getParameters() != null && !reference.getStatement().getParameters().getParameter().isEmpty()) {
 					attachment.append(" ");
 					for (int i = 0; i < reference.getStatement().getParameters().getParameter().size(); i++) {
-						attachment.append((attachment.length() == 1 ? "" : "|") + i);
+						attachment.append(attachment.length() == 1 ? "" : "|").append(i);
 					}
 				}
 				sourcesAndSinksToExport.add(JawaHelper.toJawa(reference.getStatement()) + " -> "
 						+ sinkString + attachment.toString());
 			}
 		}
-		exportToFile(sourcesAndSinksToExport, amanDroid);
+		exportToFile(sourcesAndSinksToExport);
 	}
 
-    private static void exportToFile(Set<String> sourcesAndSinksToExport, String format){
-		final List<String> sourcesAndSinksToExportSorted = new ArrayList<String>(sourcesAndSinksToExport);
+    private static void exportToFile(Set<String> sourcesAndSinksToExport){
+		final List<String> sourcesAndSinksToExportSorted = new ArrayList<>(sourcesAndSinksToExport);
 		Collections.sort(sourcesAndSinksToExportSorted);
 		try {
 			FileWriter fileWriter = new FileWriter(answerFile);

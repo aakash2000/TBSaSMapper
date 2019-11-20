@@ -6,9 +6,25 @@
     <groupId>Mapper</groupId>
     <artifactId>TBSasMapper</artifactId>
     <version>1.0-SNAPSHOT</version>
-    
     <build>
 		<sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <!-- Build an executable JAR -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>de.foellix.aql.taintbench.sasmapper.Mapper</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
     
     <dependencies>
@@ -19,6 +35,12 @@
 			<version>2.0.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+        <dependency>
+            <groupId>de.foellix</groupId>
+            <artifactId>BREW</artifactId>
+            <version>1.2.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
