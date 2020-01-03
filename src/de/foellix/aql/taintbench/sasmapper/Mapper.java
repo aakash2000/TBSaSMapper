@@ -27,41 +27,127 @@ import de.foellix.aql.helper.Helper;
 import de.foellix.aql.helper.JawaHelper;
 
 public class Mapper {
-	private static final String pathJson = "data/json/";
-	private static final String pathXML = "data/answer/";
-	private static final String sourceString = "_SOURCE_";
-	private static final String sinkString = "_SINK_";
-	private static final String flowDroid = "fd";
-	private static final String amanDroid = "ad";
-	private static String answerFile = "data/answer/";
-	private static String appName = "";
+	private static final File DEFAULT_TAINTBENCH_PATH = new File("data/json");
+	private static final File DEFAULT_RESULT_PATH = new File("data/answer");
+	private static final String SOURCE_STRING = "_SOURCE_";
+	private static final String SINK_STRING = "_SINK_";
+	private static final int MODE_EXPORT_AQL_ANSWER = 1;
+	private static final int MODE_FLOWDROID = 2;
+	private static final int MODE_AMANDROID = 3;
+	private static final String FLOWDROID = "FlowDroid";
+	private static final String FLOWDROID_SHORT = "fd";
+	private static final String AMANDROID = "Amandroid";
+	private static final String AMANDROID_SHORT = "ad";
+
+	public static boolean success;
+
+	private static int mode = -1;
+	private static File apkFileInput;
+	private static File aqlAnswerInput;
+	private static File pathTaintBench = DEFAULT_TAINTBENCH_PATH;
+	private static File pathOutput = DEFAULT_RESULT_PATH;
 
 	public static void main(String[] args) {
 		final long startTime = System.currentTimeMillis();
-		if (args.length == 1 && args[0].contains(".apk")) {
-			// export AQL answer
-			exportAQLAnswer(args[0]);
-		} else if (args.length == 3 && args[0].equals("-c")
-				&& (args[1].toLowerCase().equals(flowDroid) || args[1].toLowerCase().equals(amanDroid))
-				&& args[2].contains(".xml")) {
-			// export Source and Sinks
-			exportSourceAndSinks(args);
-		} else {
-			System.out.println("Invalid Command Option! Either input .apk or -c Fd answer.xml");
+
+		success = false;
+		int invalidArgument = -1;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].endsWith(".apk")) {
+				// Apk to map
+				apkFileInput = new File(args[i]);
+				if (apkFileInput.exists()) {
+					mode = MODE_EXPORT_AQL_ANSWER;
+				} else {
+					System.err.println("Input .apk-file does not exist: " + apkFileInput.getAbsolutePath());
+					invalidArgument = i;
+					break;
+				}
+			} else {
+				if (args[i].equals("-c") || args[i].equals("-conv") || args[i].equals("-convert")) {
+					// Target tool
+					if (args[i + 1].equalsIgnoreCase(FLOWDROID) || args[i + 1].equalsIgnoreCase(FLOWDROID_SHORT)) {
+						mode = MODE_FLOWDROID;
+					} else if (args[i + 1].equalsIgnoreCase(AMANDROID)
+							|| args[i + 1].equalsIgnoreCase(AMANDROID_SHORT)) {
+						mode = MODE_AMANDROID;
+					} else {
+						invalidArgument = i + 1;
+						break;
+					}
+
+					// Input AQL-Answer
+					if (args[i + 2].endsWith(".xml")) {
+						aqlAnswerInput = new File(args[i + 2]);
+						if (!aqlAnswerInput.exists()) {
+							System.err.println("Input AQL-Answer does not exist: " + aqlAnswerInput.getAbsolutePath());
+							invalidArgument = i + 2;
+							break;
+						}
+					} else {
+						invalidArgument = i + 2;
+						break;
+					}
+
+					i++;
+				} else if (args[i].equalsIgnoreCase("-o") || args[i].equalsIgnoreCase("-out")
+						|| args[i].equalsIgnoreCase("-output")) {
+					// Output path
+					pathOutput = new File(args[i + 1]);
+					pathOutput.mkdirs();
+				} else if (args[i].equalsIgnoreCase("-tb") || args[i].equalsIgnoreCase("-taintbench")) {
+					// TaintBench Location
+					pathTaintBench = new File(args[i + 1]);
+				} else {
+					invalidArgument = i;
+					break;
+				}
+				i++;
+			}
 		}
-		System.out.println(System.currentTimeMillis() - startTime);
+
+		if (mode > 0) {
+			if (invalidArgument < 0) {
+				System.out.println("Input [\n\tMode: "
+						+ (mode == MODE_EXPORT_AQL_ANSWER ? "Export AQL-Answer"
+								: "Convert to " + (mode == MODE_FLOWDROID ? FLOWDROID : AMANDROID))
+						+ ",\n\tApk input: " + (apkFileInput != null ? apkFileInput.getAbsolutePath() : "-")
+						+ ",\n\tAQL-Answer input: " + (aqlAnswerInput != null ? aqlAnswerInput.getAbsolutePath() : "-")
+						+ ",\n\tTaintBench location: " + pathOutput.getAbsolutePath() + ",\n\tOutput path: "
+						+ pathOutput.getAbsolutePath() + "\n]");
+				if (mode == MODE_EXPORT_AQL_ANSWER) {
+					// export AQL answer
+					exportAQLAnswer();
+					success = true;
+				} else if (aqlAnswerInput != null) {
+					// export Source and Sinks
+					exportSourceAndSinks();
+					success = true;
+				} else {
+					System.err.println("No input AQL-Answer specified!");
+				}
+			} else {
+				System.err.println("Invalid argument! (Argument: " + args[invalidArgument] + " unknown)");
+			}
+		} else {
+			System.err.println(
+					"Invalid input!\nAt least provide an app to map:\n\tpath/to/apkFile.apk\nor an answer to convert:\n\t-convert FlowDroid/Amandroid answer.xml");
+		}
+
+		System.out.println("\nExecution " + (success ? "successfull" : " failed") + "! (Time consumed: "
+				+ ((System.currentTimeMillis() - startTime) / 1000d) + "s)");
 	}
 
-	private static void exportAQLAnswer(String app) {
+	private static void exportAQLAnswer() {
 		final Answer aqlAnswer = new Answer();
-		appName = app.substring(0, app.indexOf(".apk"));
-		answerFile = answerFile + appName + ".xml";
-		final String findings = app.trim().replace(".apk", "").concat("_findings.json");
-		final App appObj = Helper.createApp(app);
+		final String appName = apkFileInput.getName().substring(0, apkFileInput.getName().indexOf(".apk"));
+		final File answerFile = new File(pathOutput, appName + ".xml");
+		final String findings = apkFileInput.getName().trim().replace(".apk", "").concat("_findings.json");
+		final App appObj = Helper.createApp(apkFileInput);
 		final Sources sources = new Sources();
 		final Sinks sinks = new Sinks();
 		try {
-			final File jsonfile = new File(pathJson.concat(findings));
+			final File jsonfile = new File(pathTaintBench, findings);
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			final TaintBenchCase taintBenchCase = mapper.readValue(jsonfile, TaintBenchCase.class);
@@ -142,37 +228,25 @@ public class Mapper {
 				}
 				aqlAnswer.setSinks(sinks);
 				aqlAnswer.setSources(sources);
-				final File file = new File(answerFile);
-				AnswerHandler.createXML(aqlAnswer, file);
+				AnswerHandler.createXML(aqlAnswer, answerFile);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void exportSourceAndSinks(String[] args) {
-		appName = args[2].substring(0, args[2].indexOf(".xml"));
-		answerFile = answerFile + "SourcesAndSinks[" + args[1].toLowerCase() + "]_" + appName + ".txt";
-		try {
-			if (appName.equals("") || appName.isEmpty()) {
-				System.out.println("Invalid XML file");
-				return;
-			}
-			final File answerXml = new File(pathXML + appName + ".xml");
-			final Answer aqlAnswer = AnswerHandler.parseXML(answerXml);
-			if (aqlAnswer == null) {
-				System.out.println("Invalid AQL Answer");
-				return;
-			}
-			if (args[1].toLowerCase().equals(flowDroid)) {
-				// FlowDroid IR generation
-				exportSourceAndSinksJimple(aqlAnswer);
-			} else if (args[1].toLowerCase().equals(amanDroid)) {
-				// AmanDroid IR generation
-				exportSourceAndSinksJawa(aqlAnswer);
-			}
-		} catch (final Exception e) {
-			e.printStackTrace();
+	private static void exportSourceAndSinks() {
+		final Answer aqlAnswer = AnswerHandler.parseXML(aqlAnswerInput);
+		if (aqlAnswer == null) {
+			System.out.println("Invalid AQL Answer");
+			return;
+		}
+		if (mode == MODE_FLOWDROID) {
+			// FlowDroid IR generation
+			exportSourceAndSinksJimple(aqlAnswer);
+		} else if (mode == MODE_AMANDROID) {
+			// AmanDroid IR generation
+			exportSourceAndSinksJawa(aqlAnswer);
 		}
 	}
 
@@ -180,11 +254,11 @@ public class Mapper {
 		final Set<String> sourcesAndSinksToExport = new HashSet<>();
 		for (final Source ss : aqlAnswer.getSources().getSource()) {
 			sourcesAndSinksToExport
-					.add("<" + ss.getReference().getStatement().getStatementgeneric() + "> -> " + sourceString);
+					.add("<" + ss.getReference().getStatement().getStatementgeneric() + "> -> " + SOURCE_STRING);
 		}
 		for (final Sink sk : aqlAnswer.getSinks().getSink()) {
 			sourcesAndSinksToExport
-					.add("<" + sk.getReference().getStatement().getStatementgeneric() + "> -> " + sinkString);
+					.add("<" + sk.getReference().getStatement().getStatementgeneric() + "> -> " + SINK_STRING);
 		}
 		exportToFile(sourcesAndSinksToExport);
 	}
@@ -193,7 +267,7 @@ public class Mapper {
 		final Set<String> sourcesAndSinksToExport = new HashSet<>();
 		for (final Source source : aqlAnswer.getSources().getSource()) {
 			sourcesAndSinksToExport.add(
-					JawaHelper.toJawa(source.getReference().getStatement()) + " SENSITIVE_INFO -> " + sourceString);
+					JawaHelper.toJawa(source.getReference().getStatement()) + " SENSITIVE_INFO -> " + SOURCE_STRING);
 		}
 		buildSinkJawa(aqlAnswer, sourcesAndSinksToExport);
 	}
@@ -210,20 +284,24 @@ public class Mapper {
 					attachment.append(attachment.length() == 1 ? "" : "|").append(i);
 				}
 			}
-			sourcesAndSinksToExport.add(JawaHelper.toJawa(sink.getReference().getStatement()) + " -> " + sinkString
+			sourcesAndSinksToExport.add(JawaHelper.toJawa(sink.getReference().getStatement()) + " -> " + SINK_STRING
 					+ attachment.toString());
 		}
 		exportToFile(sourcesAndSinksToExport);
 	}
 
 	private static void exportToFile(Set<String> sourcesAndSinksToExport) {
+		final String appName = aqlAnswerInput.getName().substring(0, aqlAnswerInput.getName().lastIndexOf(".xml"));
+		final File resultFile = new File(pathOutput,
+				"SourcesAndSinks_" + (mode == 0 ? FLOWDROID_SHORT : AMANDROID_SHORT) + "_" + appName + ".txt");
+
 		final List<String> sourcesAndSinksToExportSorted = new ArrayList<>(sourcesAndSinksToExport);
 		Collections.sort(sourcesAndSinksToExportSorted);
 		try {
-			final FileWriter fileWriter = new FileWriter(answerFile);
+			final FileWriter fileWriter = new FileWriter(resultFile);
 			// Sources
 			for (final String s : sourcesAndSinksToExportSorted) {
-				if (s.endsWith(sourceString) || s.substring(0, s.lastIndexOf(' ')).endsWith(sourceString)) {
+				if (s.endsWith(SOURCE_STRING) || s.substring(0, s.lastIndexOf(' ')).endsWith(SOURCE_STRING)) {
 					fileWriter.write(s + "\n");
 				}
 			}
@@ -232,7 +310,7 @@ public class Mapper {
 
 			// Sinks
 			for (final String s : sourcesAndSinksToExportSorted) {
-				if (s.endsWith(sinkString) || s.substring(0, s.lastIndexOf(' ')).endsWith(sinkString)) {
+				if (s.endsWith(SINK_STRING) || s.substring(0, s.lastIndexOf(' ')).endsWith(SINK_STRING)) {
 					fileWriter.write(s + "\n");
 				}
 			}

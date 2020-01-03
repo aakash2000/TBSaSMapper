@@ -5,25 +5,25 @@
 	<artifactId>TBSaSMapper</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<name>TBSasMapper</name>
 	<description>TaintBench: Sources and Sinks Mapper</description>
 	<url>https://github.com/aakash2000/TBSaSMapper</url>
-	
+
 	<properties>
 		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-	
+
 	<build>
 		<defaultGoal>clean install</defaultGoal>
 		<directory>target</directory>
-		
+
 		<outputDirectory>target/classes</outputDirectory>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>testsrc</testSourceDirectory>
-		
+
 		<plugins>
 			<plugin>
 				<!-- Build an executable JAR -->
@@ -39,6 +39,13 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<!-- Execute JUnit tests -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
 			</plugin>
 		</plugins>
 	</build>
@@ -58,6 +65,7 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<!-- Json -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId> json-simple</artifactId>
@@ -67,6 +75,21 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20140107</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.4.2</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.4.2</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
