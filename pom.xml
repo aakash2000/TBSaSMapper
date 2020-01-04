@@ -26,19 +26,33 @@
 
 		<plugins>
 			<plugin>
-				<!-- Build an executable JAR -->
+				<!-- Build an executable JAR with dependencies -->
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.2.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>de.foellix.aql.taintbench.sasmapper.Mapper</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>
+										de.foellix.aql.taintbench.sasmapper.Mapper
+									</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<outputDirectory>${project.basedir}/target/build</outputDirectory>
+							<finalName>${project.name}-${project.version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			
 			<plugin>
@@ -54,14 +68,8 @@
 		<!-- AQL Project -->
 		<dependency>
 			<groupId>de.foellix</groupId>
-			<artifactId>AQL-System</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.foellix</groupId>
 			<artifactId>BREW</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>2.0.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 

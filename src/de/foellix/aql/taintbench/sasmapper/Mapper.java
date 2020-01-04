@@ -12,6 +12,9 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.foellix.aql.brew.taintbench.TaintBenchHelper;
+import de.foellix.aql.brew.taintbench.datastructure.Finding;
+import de.foellix.aql.brew.taintbench.datastructure.TaintBenchCase;
 import de.foellix.aql.datastructure.Answer;
 import de.foellix.aql.datastructure.App;
 import de.foellix.aql.datastructure.Reference;
@@ -21,8 +24,7 @@ import de.foellix.aql.datastructure.Source;
 import de.foellix.aql.datastructure.Sources;
 import de.foellix.aql.datastructure.Statement;
 import de.foellix.aql.datastructure.handler.AnswerHandler;
-import de.foellix.aql.ggwiz.taintbench.datastructure.Finding;
-import de.foellix.aql.ggwiz.taintbench.datastructure.TaintBenchCase;
+import de.foellix.aql.helper.HashHelper;
 import de.foellix.aql.helper.Helper;
 import de.foellix.aql.helper.JawaHelper;
 
@@ -163,67 +165,54 @@ public class Mapper {
 					if (finding.getSink() == null) {
 						System.out.println("No Intent Sink found");
 					} else {
-						final Sink sink = new Sink();
-						final Reference reference = new Reference();
-						Statement statement = new Statement();
-						reference.setApp(appObj);
-						if (!finding.getSink().getClassName().isEmpty() && finding.getSink().getClassName() != null) {
+						final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSink().getIRs());
+						if (finding.getSink().getClassName() != null && !finding.getSink().getClassName().isEmpty()
+								&& jimpleStmt != null && !jimpleStmt.isEmpty()
+								&& finding.getSink().getMethodName() != null
+								&& !finding.getSink().getMethodName().isEmpty()) {
+							final Sink sink = new Sink();
+							final Reference reference = new Reference();
+							Statement statement = new Statement();
+							reference.setApp(appObj);
+
 							// Extracting ClassName
 							reference.setClassname(finding.getSink().getClassName());
-						}
-						if (!finding.getSink().getJimpleStmt().isEmpty() && finding.getSink().getJimpleStmt() != null
-								&& finding.getSink().getLineNo() != null) {
 							// Extracting JimpleStmt and lineNo
-							statement = Helper.createStatement(finding.getSink().getJimpleStmt(),
-									finding.getSink().getLineNo());
-						} else if (!finding.getSink().getJimpleStmt().isEmpty()
-								&& finding.getSink().getJimpleStmt() != null) {
-							// Extracting JimpleStmt
-							statement = Helper.createStatement(finding.getSink().getJimpleStmt());
-						}
-						if (finding.getSink().getMethodName() != null && !finding.getSink().getMethodName().isEmpty()) {
+							statement = Helper.createStatement(jimpleStmt, finding.getSink().getLineNo());
+							reference.setStatement(statement);
 							// Extracting methodName
 							reference.setMethod(finding.getSink().getMethodName());
-						}
-						reference.setStatement(statement);
-						sink.setReference(reference);
-						sinks.getSink().add(sink);
 
+							sink.setReference(reference);
+							sinks.getSink().add(sink);
+						}
 					}
 
 					// Source
 					if (finding.getSource() == null) {
 						System.out.println("No Intent Source found");
 					} else {
+						final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSource().getIRs());
+						if (finding.getSource().getClassName() != null && !finding.getSource().getClassName().isEmpty()
+								&& jimpleStmt != null && !jimpleStmt.isEmpty()
+								&& finding.getSource().getMethodName() != null
+								&& !finding.getSource().getMethodName().isEmpty()) {
+							final Source source = new Source();
+							final Reference reference = new Reference();
+							Statement statement = new Statement();
+							reference.setApp(appObj);
 
-						final Source source = new Source();
-						final Reference reference = new Reference();
-						Statement statement = new Statement();
-						reference.setApp(appObj);
-						if (finding.getSource().getClassName() != null
-								&& !finding.getSource().getClassName().isEmpty()) {
 							// Extracting ClassName
 							reference.setClassname(finding.getSource().getClassName());
-						}
-						if (!finding.getSource().getJimpleStmt().isEmpty()
-								&& finding.getSource().getJimpleStmt() != null
-								&& finding.getSource().getLineNo() != null) {
 							// Extracting JimpleStmt and lineNo
-							statement = Helper.createStatement(finding.getSource().getJimpleStmt(),
-									finding.getSource().getLineNo());
-						} else if (!finding.getSource().getJimpleStmt().isEmpty()
-								&& finding.getSource().getJimpleStmt() != null) {
-							// Extracting JimpleStmt
-							statement = Helper.createStatement(finding.getSource().getJimpleStmt());
-						}
-						if (finding.getSource().getMethodName() != null
-								&& !finding.getSource().getMethodName().isEmpty()) {
+							statement = Helper.createStatement(jimpleStmt, finding.getSource().getLineNo());
+							reference.setStatement(statement);
 							// Extracting methodName
 							reference.setMethod(finding.getSource().getMethodName());
+
+							source.setReference(reference);
+							sources.getSource().add(source);
 						}
-						reference.setStatement(statement);
-						source.setReference(reference);
-						sources.getSource().add(source);
 					}
 				}
 				aqlAnswer.setSinks(sinks);
@@ -291,9 +280,9 @@ public class Mapper {
 	}
 
 	private static void exportToFile(Set<String> sourcesAndSinksToExport) {
-		final String appName = aqlAnswerInput.getName().substring(0, aqlAnswerInput.getName().lastIndexOf(".xml"));
 		final File resultFile = new File(pathOutput,
-				"SourcesAndSinks_" + (mode == 0 ? FLOWDROID_SHORT : AMANDROID_SHORT) + "_" + appName + ".txt");
+				"SourcesAndSinks_" + (mode == MODE_FLOWDROID ? FLOWDROID_SHORT : AMANDROID_SHORT) + "_"
+						+ HashHelper.sha256Hash(aqlAnswerInput.getAbsolutePath(), true) + ".txt");
 
 		final List<String> sourcesAndSinksToExportSorted = new ArrayList<>(sourcesAndSinksToExport);
 		Collections.sort(sourcesAndSinksToExportSorted);
@@ -315,7 +304,6 @@ public class Mapper {
 				}
 			}
 			fileWriter.close();
-
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
