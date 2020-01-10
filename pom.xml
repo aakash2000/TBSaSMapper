@@ -6,7 +6,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>TBSasMapper</name>
+	<name>TBSaSMapper</name>
 	<description>TaintBench: Sources and Sinks Mapper</description>
 	<url>https://github.com/aakash2000/TBSaSMapper</url>
 
@@ -54,7 +54,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<!-- Execute JUnit tests -->
 				<groupId>org.apache.maven.plugins</groupId>
@@ -65,7 +65,7 @@
 	</build>
 
 	<dependencies>
-		<!-- AQL Project -->
+		<!-- BREW -->
 		<dependency>
 			<groupId>de.foellix</groupId>
 			<artifactId>BREW</artifactId>
@@ -73,16 +73,17 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- Json -->
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId> json-simple</artifactId>
+			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20140107</version>
+			<version>20190722</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
