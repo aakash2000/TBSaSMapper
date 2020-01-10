@@ -1,17 +1,16 @@
 package de.foellix.aql.taintbench.sasmapper;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 
+import de.foellix.aql.brew.Exporter;
+import de.foellix.aql.brew.sourceandsinkselector.SourceOrSink;
 import de.foellix.aql.brew.taintbench.TaintBenchHelper;
 import de.foellix.aql.brew.taintbench.datastructure.Finding;
 import de.foellix.aql.brew.taintbench.datastructure.TaintBenchCase;
@@ -24,15 +23,13 @@ import de.foellix.aql.datastructure.Source;
 import de.foellix.aql.datastructure.Sources;
 import de.foellix.aql.datastructure.Statement;
 import de.foellix.aql.datastructure.handler.AnswerHandler;
+import de.foellix.aql.helper.EqualsHelper;
 import de.foellix.aql.helper.HashHelper;
 import de.foellix.aql.helper.Helper;
-import de.foellix.aql.helper.JawaHelper;
 
 public class Mapper {
 	private static final File DEFAULT_TAINTBENCH_PATH = new File("data/json");
 	private static final File DEFAULT_RESULT_PATH = new File("data/answer");
-	private static final String SOURCE_STRING = "_SOURCE_";
-	private static final String SINK_STRING = "_SINK_";
 	private static final int MODE_EXPORT_AQL_ANSWER = 1;
 	private static final int MODE_FLOWDROID = 2;
 	private static final int MODE_AMANDROID = 3;
@@ -230,82 +227,49 @@ public class Mapper {
 			System.out.println("Invalid AQL Answer");
 			return;
 		}
-		if (mode == MODE_FLOWDROID) {
-			// FlowDroid IR generation
-			exportSourceAndSinksJimple(aqlAnswer);
-		} else if (mode == MODE_AMANDROID) {
-			// AmanDroid IR generation
-			exportSourceAndSinksJawa(aqlAnswer);
-		}
-	}
 
-	private static void exportSourceAndSinksJimple(Answer aqlAnswer) {
-		final Set<String> sourcesAndSinksToExport = new HashSet<>();
-		for (final Source ss : aqlAnswer.getSources().getSource()) {
-			sourcesAndSinksToExport
-					.add("<" + ss.getReference().getStatement().getStatementgeneric() + "> -> " + SOURCE_STRING);
-		}
-		for (final Sink sk : aqlAnswer.getSinks().getSink()) {
-			sourcesAndSinksToExport
-					.add("<" + sk.getReference().getStatement().getStatementgeneric() + "> -> " + SINK_STRING);
-		}
-		exportToFile(sourcesAndSinksToExport);
-	}
-
-	private static void exportSourceAndSinksJawa(Answer aqlAnswer) {
-		final Set<String> sourcesAndSinksToExport = new HashSet<>();
+		// Convert list of source and list of sinks to list of sources or sinks
+		final List<SourceOrSink> sourcesAndSinks = new ArrayList<>();
 		for (final Source source : aqlAnswer.getSources().getSource()) {
-			sourcesAndSinksToExport.add(
-					JawaHelper.toJawa(source.getReference().getStatement()) + " SENSITIVE_INFO -> " + SOURCE_STRING);
-		}
-		buildSinkJawa(aqlAnswer, sourcesAndSinksToExport);
-	}
-
-	private static void buildSinkJawa(Answer answer, Set<String> sourcesAndSinksToExport) {
-		final Sinks sinks = answer.getSinks();
-		StringBuilder attachment;
-		for (final Sink sink : sinks.getSink()) {
-			attachment = new StringBuilder();
-			if (sink.getReference().getStatement().getParameters() != null
-					&& !sink.getReference().getStatement().getParameters().getParameter().isEmpty()) {
-				attachment.append(" ");
-				for (int i = 0; i < sink.getReference().getStatement().getParameters().getParameter().size(); i++) {
-					attachment.append(attachment.length() == 1 ? "" : "|").append(i);
+			for (final SourceOrSink check : sourcesAndSinks) {
+				if (EqualsHelper.equals(source.getReference(), check.getReference())) {
+					continue;
 				}
 			}
-			sourcesAndSinksToExport.add(JawaHelper.toJawa(sink.getReference().getStatement()) + " -> " + SINK_STRING
-					+ attachment.toString());
+			sourcesAndSinks.add(new SourceOrSink(true, false, source.getReference()));
 		}
-		exportToFile(sourcesAndSinksToExport);
-	}
+		for (final Sink sink : aqlAnswer.getSinks().getSink()) {
+			for (final SourceOrSink check : sourcesAndSinks) {
+				if (EqualsHelper.equals(sink.getReference(), check.getReference())) {
+					check.setSink(true);
+					continue;
+				}
+			}
+			sourcesAndSinks.add(new SourceOrSink(false, true, sink.getReference()));
+		}
 
-	private static void exportToFile(Set<String> sourcesAndSinksToExport) {
-		final File resultFile = new File(pathOutput,
-				"SourcesAndSinks_" + (mode == MODE_FLOWDROID ? FLOWDROID_SHORT : AMANDROID_SHORT) + "_"
-						+ HashHelper.sha256Hash(aqlAnswerInput.getAbsolutePath(), true) + ".txt");
+		// Export
+		final Exporter exporter = new Exporter(pathOutput);
+		if (mode == MODE_FLOWDROID) {
+			exporter.exportSourcesAndSinks(sourcesAndSinks, Exporter.EXPORT_FORMAT_FLOWDROID_JIMPLE);
+		} else if (mode == MODE_AMANDROID) {
+			exporter.exportSourcesAndSinks(sourcesAndSinks, Exporter.EXPORT_FORMAT_AMANDROID_JAWA);
+		}
 
-		final List<String> sourcesAndSinksToExportSorted = new ArrayList<>(sourcesAndSinksToExport);
-		Collections.sort(sourcesAndSinksToExportSorted);
+		// Copy to output
 		try {
-			final FileWriter fileWriter = new FileWriter(resultFile);
-			// Sources
-			for (final String s : sourcesAndSinksToExportSorted) {
-				if (s.endsWith(SOURCE_STRING) || s.substring(0, s.lastIndexOf(' ')).endsWith(SOURCE_STRING)) {
-					fileWriter.write(s + "\n");
-				}
+			if (mode == MODE_FLOWDROID) {
+				final File resultFile = new File(pathOutput, "SourcesAndSinks_" + FLOWDROID_SHORT + "_"
+						+ HashHelper.sha256Hash(aqlAnswerInput.getAbsolutePath(), true) + ".txt");
+				Files.copy(exporter.getOutputFile(Exporter.EXPORT_FORMAT_FLOWDROID_JIMPLE), resultFile);
+			} else {
+				final File resultFile = new File(pathOutput, "SourcesAndSinks_" + AMANDROID_SHORT + "_"
+						+ HashHelper.sha256Hash(aqlAnswerInput.getAbsolutePath(), true) + ".txt");
+				Files.copy(exporter.getOutputFile(Exporter.EXPORT_FORMAT_AMANDROID_JAWA), resultFile);
 			}
-
-			fileWriter.write("\n");
-
-			// Sinks
-			for (final String s : sourcesAndSinksToExportSorted) {
-				if (s.endsWith(SINK_STRING) || s.substring(0, s.lastIndexOf(' ')).endsWith(SINK_STRING)) {
-					fileWriter.write(s + "\n");
-				}
-			}
-			fileWriter.close();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			System.out.println(
+					"Could not write result to file! (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
 		}
 	}
 }
