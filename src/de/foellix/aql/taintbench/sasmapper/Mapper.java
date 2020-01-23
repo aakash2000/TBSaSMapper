@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 
+import de.foellix.aql.Log;
 import de.foellix.aql.brew.Exporter;
 import de.foellix.aql.brew.sourceandsinkselector.SourceOrSink;
 import de.foellix.aql.brew.taintbench.TaintBenchHelper;
@@ -39,17 +39,28 @@ public class Mapper {
 	private static final String AMANDROID_SHORT = "ad";
 
 	public static boolean success;
-
-	private static int mode = -1;
+	private static int mode;
 	private static File apkFileInput;
 	private static File aqlAnswerInput;
-	private static File pathTaintBench = DEFAULT_TAINTBENCH_PATH;
-	private static File pathOutput = DEFAULT_RESULT_PATH;
+	private static File pathTaintBench;
+	private static File pathOutput;
+	private static int idFrom;
+	private static int idTo;
 
 	public static void main(String[] args) {
 		final long startTime = System.currentTimeMillis();
 
+		// Init
 		success = false;
+		mode = -1;
+		apkFileInput = null;
+		aqlAnswerInput = null;
+		pathTaintBench = DEFAULT_TAINTBENCH_PATH;
+		pathOutput = DEFAULT_RESULT_PATH;
+		idFrom = -1;
+		idTo = Integer.MAX_VALUE;
+
+		// Start
 		int invalidArgument = -1;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].endsWith(".apk")) {
@@ -58,7 +69,7 @@ public class Mapper {
 				if (apkFileInput.exists()) {
 					mode = MODE_EXPORT_AQL_ANSWER;
 				} else {
-					System.err.println("Input .apk-file does not exist: " + apkFileInput.getAbsolutePath());
+					Log.error("Input .apk-file does not exist: " + apkFileInput.getAbsolutePath());
 					invalidArgument = i;
 					break;
 				}
@@ -79,7 +90,7 @@ public class Mapper {
 					if (args[i + 2].endsWith(".xml")) {
 						aqlAnswerInput = new File(args[i + 2]);
 						if (!aqlAnswerInput.exists()) {
-							System.err.println("Input AQL-Answer does not exist: " + aqlAnswerInput.getAbsolutePath());
+							Log.error("Input AQL-Answer does not exist: " + aqlAnswerInput.getAbsolutePath());
 							invalidArgument = i + 2;
 							break;
 						}
@@ -97,6 +108,16 @@ public class Mapper {
 				} else if (args[i].equalsIgnoreCase("-tb") || args[i].equalsIgnoreCase("-taintbench")) {
 					// TaintBench Location
 					pathTaintBench = new File(args[i + 1]);
+				} else if (args[i].equalsIgnoreCase("-id")) {
+					// TaintBench Flow ID
+					idFrom = Integer.valueOf(args[i + 1]);
+					idTo = idFrom;
+				} else if (args[i].equalsIgnoreCase("-from")) {
+					// TaintBench Flow ID
+					idFrom = Integer.valueOf(args[i + 1]);
+				} else if (args[i].equalsIgnoreCase("-to")) {
+					// TaintBench Flow ID
+					idTo = Integer.valueOf(args[i + 1]);
 				} else {
 					invalidArgument = i;
 					break;
@@ -107,13 +128,13 @@ public class Mapper {
 
 		if (mode > 0) {
 			if (invalidArgument < 0) {
-				System.out.println("Input [\n\tMode: "
+				Log.msg("Input [\n\tMode: "
 						+ (mode == MODE_EXPORT_AQL_ANSWER ? "Export AQL-Answer"
 								: "Convert to " + (mode == MODE_FLOWDROID ? FLOWDROID : AMANDROID))
 						+ ",\n\tApk input: " + (apkFileInput != null ? apkFileInput.getAbsolutePath() : "-")
 						+ ",\n\tAQL-Answer input: " + (aqlAnswerInput != null ? aqlAnswerInput.getAbsolutePath() : "-")
-						+ ",\n\tTaintBench location: " + pathOutput.getAbsolutePath() + ",\n\tOutput path: "
-						+ pathOutput.getAbsolutePath() + "\n]");
+						+ ",\n\tTaintBench location: " + pathTaintBench.getAbsolutePath() + ",\n\tOutput path: "
+						+ pathOutput.getAbsolutePath() + "\n]", Log.NORMAL);
 				if (mode == MODE_EXPORT_AQL_ANSWER) {
 					// export AQL answer
 					exportAQLAnswer();
@@ -123,97 +144,104 @@ public class Mapper {
 					exportSourceAndSinks();
 					success = true;
 				} else {
-					System.err.println("No input AQL-Answer specified!");
+					Log.error("No input AQL-Answer specified!");
 				}
 			} else {
-				System.err.println("Invalid argument! (Argument: " + args[invalidArgument] + " unknown)");
+				Log.error("Invalid argument! (Argument: " + args[invalidArgument] + " unknown)");
 			}
 		} else {
-			System.err.println(
+			Log.error(
 					"Invalid input!\nAt least provide an app to map:\n\tpath/to/apkFile.apk\nor an answer to convert:\n\t-convert FlowDroid/Amandroid answer.xml");
 		}
 
-		System.out.println("\nExecution " + (success ? "successfull" : " failed") + "! (Time consumed: "
-				+ ((System.currentTimeMillis() - startTime) / 1000d) + "s)");
+		Log.msg("\nExecution " + (success ? "successfull" : " failed") + "! (Time consumed: "
+				+ ((System.currentTimeMillis() - startTime) / 1000d) + "s)", Log.NORMAL);
 	}
 
 	private static void exportAQLAnswer() {
 		final Answer aqlAnswer = new Answer();
+		final Sources sources = new Sources();
+		final Sinks sinks = new Sinks();
+		aqlAnswer.setSinks(sinks);
+		aqlAnswer.setSources(sources);
+
 		final String appName = apkFileInput.getName().substring(0, apkFileInput.getName().indexOf(".apk"));
 		final File answerFile = new File(pathOutput, appName + ".xml");
 		final String findings = apkFileInput.getName().trim().replace(".apk", "").concat("_findings.json");
 		final App appObj = Helper.createApp(apkFileInput);
-		final Sources sources = new Sources();
-		final Sinks sinks = new Sinks();
 		try {
 			final File jsonfile = new File(pathTaintBench, findings);
 			final ObjectMapper mapper = new ObjectMapper();
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			final TaintBenchCase taintBenchCase = mapper.readValue(jsonfile, TaintBenchCase.class);
 
 			if (taintBenchCase.getFindings().isEmpty() || taintBenchCase.getFindings().size() < 1) {
-				System.out.println("No findings found!");
+				Log.error("No findings found!");
 			} else {
 				final List<Finding> findingsList = taintBenchCase.getFindings();
 				for (int i = 0; i < findingsList.size(); i++) {
 					final Finding finding = findingsList.get(i);
 
-					// Sink
-					if (finding.getSink() == null) {
-						System.out.println("No Intent Sink found");
-					} else {
-						final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSink().getIRs());
-						if (finding.getSink().getClassName() != null && !finding.getSink().getClassName().isEmpty()
-								&& jimpleStmt != null && !jimpleStmt.isEmpty()
-								&& finding.getSink().getMethodName() != null
-								&& !finding.getSink().getMethodName().isEmpty()) {
-							final Sink sink = new Sink();
-							final Reference reference = new Reference();
-							Statement statement = new Statement();
-							reference.setApp(appObj);
+					if (finding.getID() >= idFrom && finding.getID() <= idTo) {
+						// Sink
+						if (finding.getSink() == null) {
+							Log.error("No Intent Sink found");
+						} else {
+							final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSink().getIRs());
+							if (finding.getSink().getClassName() != null && !finding.getSink().getClassName().isEmpty()
+									&& jimpleStmt != null && !jimpleStmt.isEmpty()
+									&& finding.getSink().getMethodName() != null
+									&& !finding.getSink().getMethodName().isEmpty()) {
+								final Sink sink = new Sink();
+								final Reference reference = new Reference();
+								Statement statement = new Statement();
+								reference.setApp(appObj);
 
-							// Extracting ClassName
-							reference.setClassname(finding.getSink().getClassName());
-							// Extracting JimpleStmt and lineNo
-							statement = Helper.createStatement(jimpleStmt, finding.getSink().getLineNo());
-							reference.setStatement(statement);
-							// Extracting methodName
-							reference.setMethod(finding.getSink().getMethodName());
+								// Extracting ClassName
+								reference.setClassname(finding.getSink().getClassName());
+								// Extracting JimpleStmt and lineNo
+								statement = Helper.createStatement(jimpleStmt, finding.getSink().getLineNo());
+								reference.setStatement(statement);
+								// Extracting methodName
+								reference.setMethod(finding.getSink().getMethodName());
 
-							sink.setReference(reference);
-							sinks.getSink().add(sink);
+								sink.setReference(reference);
+								sinks.getSink().add(sink);
+							} else {
+								Log.warning("Incomplete sink defined for ID: " + finding.getID());
+							}
 						}
-					}
 
-					// Source
-					if (finding.getSource() == null) {
-						System.out.println("No Intent Source found");
-					} else {
-						final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSource().getIRs());
-						if (finding.getSource().getClassName() != null && !finding.getSource().getClassName().isEmpty()
-								&& jimpleStmt != null && !jimpleStmt.isEmpty()
-								&& finding.getSource().getMethodName() != null
-								&& !finding.getSource().getMethodName().isEmpty()) {
-							final Source source = new Source();
-							final Reference reference = new Reference();
-							Statement statement = new Statement();
-							reference.setApp(appObj);
+						// Source
+						if (finding.getSource() == null) {
+							Log.error("No Intent Source found");
+						} else {
+							final String jimpleStmt = TaintBenchHelper.getJimpleStmt(finding.getSource().getIRs());
+							if (finding.getSource().getClassName() != null
+									&& !finding.getSource().getClassName().isEmpty() && jimpleStmt != null
+									&& !jimpleStmt.isEmpty() && finding.getSource().getMethodName() != null
+									&& !finding.getSource().getMethodName().isEmpty()) {
+								final Source source = new Source();
+								final Reference reference = new Reference();
+								Statement statement = new Statement();
+								reference.setApp(appObj);
 
-							// Extracting ClassName
-							reference.setClassname(finding.getSource().getClassName());
-							// Extracting JimpleStmt and lineNo
-							statement = Helper.createStatement(jimpleStmt, finding.getSource().getLineNo());
-							reference.setStatement(statement);
-							// Extracting methodName
-							reference.setMethod(finding.getSource().getMethodName());
+								// Extracting ClassName
+								reference.setClassname(finding.getSource().getClassName());
+								// Extracting JimpleStmt and lineNo
+								statement = Helper.createStatement(jimpleStmt, finding.getSource().getLineNo());
+								reference.setStatement(statement);
+								// Extracting methodName
+								reference.setMethod(finding.getSource().getMethodName());
 
-							source.setReference(reference);
-							sources.getSource().add(source);
+								source.setReference(reference);
+								sources.getSource().add(source);
+							} else {
+								Log.warning("Incomplete source defined for ID: " + finding.getID());
+							}
 						}
 					}
 				}
-				aqlAnswer.setSinks(sinks);
-				aqlAnswer.setSources(sources);
 				AnswerHandler.createXML(aqlAnswer, answerFile);
 			}
 		} catch (final Exception e) {
@@ -224,7 +252,7 @@ public class Mapper {
 	private static void exportSourceAndSinks() {
 		final Answer aqlAnswer = AnswerHandler.parseXML(aqlAnswerInput);
 		if (aqlAnswer == null) {
-			System.out.println("Invalid AQL Answer");
+			Log.error("Invalid AQL Answer");
 			return;
 		}
 
@@ -268,8 +296,7 @@ public class Mapper {
 				Files.copy(exporter.getOutputFile(Exporter.EXPORT_FORMAT_AMANDROID_JAWA), resultFile);
 			}
 		} catch (final IOException e) {
-			System.out.println(
-					"Could not write result to file! (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
+			Log.error("Could not write result to file!" + Log.getExceptionAppendix(e));
 		}
 	}
 }

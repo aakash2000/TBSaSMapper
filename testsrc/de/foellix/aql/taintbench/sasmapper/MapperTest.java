@@ -1,5 +1,6 @@
 package de.foellix.aql.taintbench.sasmapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import de.foellix.aql.datastructure.Answer;
+import de.foellix.aql.datastructure.handler.AnswerHandler;
 import de.foellix.aql.helper.FileHelper;
 
 public class MapperTest {
@@ -51,41 +54,57 @@ public class MapperTest {
 	@Test
 	public void test01() {
 		test("data/apk/cajino_baidu.apk");
+
+		final Answer aqlAnswer = AnswerHandler.parseXML(new File(ANSWER_DIR, "cajino_baidu.xml"));
+		assertEquals(10, aqlAnswer.getSources().getSource().size());
+		assertEquals(10, aqlAnswer.getSinks().getSink().size());
+
 		cleanUp();
 	}
 
 	@Test
 	public void test02() {
-		test("-o data/answer/aql data/apk/cajino_baidu.apk");
+		test("data/apk/cajino_baidu.apk -id 1");
+
+		final Answer aqlAnswer = AnswerHandler.parseXML(new File(ANSWER_DIR, "cajino_baidu.xml"));
+		assertEquals(1, aqlAnswer.getSources().getSource().size());
+		assertEquals(1, aqlAnswer.getSinks().getSink().size());
+
+		cleanUp();
 	}
 
 	@Test
 	public void test03() {
-		test("-c fd data/answer/aql/cajino_baidu.xml");
+		test("-o data/answer/aql data/apk/cajino_baidu.apk");
 	}
 
 	@Test
 	public void test04() {
-		test("-c ad data/answer/aql/cajino_baidu.xml");
+		test("-c fd data/answer/aql/cajino_baidu.xml");
 	}
 
 	@Test
 	public void test05() {
-		test("-o data/answer/aql -c fd data/answer/aql/cajino_baidu.xml");
+		test("-c ad data/answer/aql/cajino_baidu.xml");
 	}
 
 	@Test
 	public void test06() {
-		test("-tb data/json -o data/answer/aql -c fd data/answer/aql/cajino_baidu.xml");
+		test("-o data/answer/aql -c fd data/answer/aql/cajino_baidu.xml");
 	}
 
 	@Test
 	public void test07() {
-		test("-o data/answer/aql data/apk/fakebank_android_samp.apk");
+		test("-tb data/json -o data/answer/aql -c fd data/answer/aql/cajino_baidu.xml");
 	}
 
 	@Test
 	public void test08() {
+		test("-o data/answer/aql data/apk/fakebank_android_samp.apk");
+	}
+
+	@Test
+	public void test09() {
 		test("-tb data/json -o data/answer/aql -c fd data/answer/aql/fakebank_android_samp.xml");
 	}
 }
