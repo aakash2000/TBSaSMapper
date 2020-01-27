@@ -110,8 +110,11 @@ public class Mapper {
 					pathTaintBench = new File(args[i + 1]);
 				} else if (args[i].equalsIgnoreCase("-id")) {
 					// TaintBench Flow ID
-					idFrom = Integer.valueOf(args[i + 1]);
-					idTo = idFrom;
+					final int id = Integer.valueOf(args[i + 1]);
+					if (id > 0) {
+						idFrom = id;
+						idTo = id;
+					}
 				} else if (args[i].equalsIgnoreCase("-from")) {
 					// TaintBench Flow ID
 					idFrom = Integer.valueOf(args[i + 1]);
