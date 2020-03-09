@@ -1,6 +1,6 @@
 # TBSaSMapper
 
-The TBSasMapper is a mapping tool within the AQL framework. The main objective of the mapper is to map source and sinks from application (apk) findings to an AQL answer (XML) or to map an AQL answer to a source and sinks file (text) which is required as an input to Flowdroid or Amandroid tool.
+The TBSaSMapper is a mapping tool within the AQL framework. The main objective of the mapper is to map source and sinks from application (apk) findings to an AQL answer (XML) or to map an AQL answer to a source and sinks file (text) which is required as an input to Flowdroid or Amandroid tool.
 
 The mapper accepts below mentioned formats as an input to the command line :-
 1) Input : .apk file, Output : .xml (AQL answer), Example : mapper android.apk answer.xml
