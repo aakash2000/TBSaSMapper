@@ -3,17 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Mapper</groupId>
 	<artifactId>TBSaSMapper</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>TBSaSMapper</name>
 	<description>TaintBench: Sources and Sinks Mapper</description>
-	<url>https://github.com/aakash2000/TBSaSMapper</url>
+	<url>https://FoelliX.github.io/TBSaSMapper</url>
 
 	<properties>
 		<project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -26,10 +24,19 @@
 
 		<plugins>
 			<plugin>
-				<!-- Build an executable JAR with dependencies -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>16</source>
+					<target>16</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -56,7 +63,6 @@
 			</plugin>
 
 			<plugin>
-				<!-- Execute JUnit tests -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
@@ -77,9 +83,31 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.6.0</version>
+			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<developers>
+		<developer>
+			<name>Felix Pauck</name>
+			<email>fpauck@mail.uni-paderborn.de</email>
+			<organization>Paderborn University</organization>
+			<organizationUrl>https://cs.uni-paderborn.de</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/FoelliX/TBSaSMapper.git</connection>
+		<developerConnection>scm:git:ssh://github.com:FoelliX/TBSaSMapper.git</developerConnection>
+		<url>http://github.io/FoelliX/TBSaSMapper</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License v3.0</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+		</license>
+	</licenses>
 
 </project>

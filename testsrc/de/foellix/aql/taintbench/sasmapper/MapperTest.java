@@ -34,15 +34,17 @@ public class MapperTest {
 
 	private void test(String args) {
 		boolean noException = true;
+		final Mapper mapper = new Mapper();
+		boolean success = false;
 		try {
-			Mapper.main(args.split(" "));
+			success = mapper.map(args.split(" "));
 		} catch (final Exception e) {
 			noException = false;
 			e.printStackTrace();
 		}
 
 		assertTrue(noException);
-		assertTrue(Mapper.success);
+		assertTrue(success);
 	}
 
 	private static void cleanUp() {
@@ -56,8 +58,8 @@ public class MapperTest {
 		test("data/apk/cajino_baidu.apk");
 
 		final Answer aqlAnswer = AnswerHandler.parseXML(new File(ANSWER_DIR, "cajino_baidu.xml"));
-		assertEquals(10, aqlAnswer.getSources().getSource().size());
-		assertEquals(10, aqlAnswer.getSinks().getSink().size());
+		assertEquals(15, aqlAnswer.getSources().getSource().size());
+		assertEquals(15, aqlAnswer.getSinks().getSink().size());
 
 		cleanUp();
 	}

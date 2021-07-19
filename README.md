@@ -1,4 +1,4 @@
-# TBSaSMapper
+# TBSaSMapper ![Java 16](https://img.shields.io/badge/java-16-brightgreen.svg)
 
 The TBSaSMapper is a mapping tool within the AQL framework. The main objective of the mapper is to map source and sinks from application (apk) [findings](https://github.com/TaintBench/backflash/blob/master/backflash_findings.json) to an [AQL-Answer](https://github.com/FoelliX/AQL-System/wiki/Answers) or to map an [AQL-Answer](https://github.com/FoelliX/AQL-System/wiki/Answers) to a source and sinks file (text) which is required as an input to [Flowdroid](https://github.com/secure-software-engineering/FlowDroid) or [Amandroid](https://github.com/arguslab/Argus-SAF) tool.
 
